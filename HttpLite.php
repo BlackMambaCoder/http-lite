@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Class HttpLite
+ * @author Leonhard Radonic
+ * @email leonhard.radonic@gmail.com
+ * @linkedin https://www.linkedin.com/in/leonhard-radonic-832228ba/
+ */
+
 class HttpLite {
 
     private const GET = 1;
