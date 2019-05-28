@@ -13,14 +13,12 @@ class HttpLite {
     private const POST = 2;
     private const PUT = 3;
 
-
     private $verbose = false;
     private $headers = [];
     private $ignoreSSL = false;
     private $url = '';
     private $method = self::GET;
-    private $payload = '';
-    private $payloadArray = [];
+    private $payloadAsString = '';
     private $response;
 
     public function setHeader($key, $value) {
@@ -43,15 +41,10 @@ class HttpLite {
         return $this;
     }
 
-    public function bodyArray ($payloadArray) {
-        $this->payloadArray = $payloadArray;
-        return $this;
-    }
-
-    public function jsonBody() {
+    public function setJsonBody($payloadArray) {
         $this->headers[] = 'Content-Type: application/json';
-        $this->payload = json_encode($this->payloadArray);
-        $this->headers[] = 'Content-Length: ' . strlen($this->payload);
+        $this->payloadAsString = json_encode($payloadArray);
+        $this->headers[] = 'Content-Length: ' . strlen($this->payloadAsString);
         return $this;
     }
 
@@ -65,7 +58,21 @@ class HttpLite {
         return $this;
     }
 
+    public function getResponseAsJson() {
+        $response = json_decode($this->response, true);
+
+        if ($response === NULL) {
+            return null;
+        }
+
+        return $response;
+    }
+
     public function send() {
+        if (empty($this->url)) {
+            throw new ErrorException("No URL set");
+        }
+
         $ch = curl_init();
 
         if ($this->hasHeaders()) {
@@ -80,7 +87,7 @@ class HttpLite {
             CURLOPT_SSL_VERIFYPEER => !$this->ignoreSSL,
             CURLOPT_POST => $this->method === HTTP_METH_POST,
             CURLOPT_PUT => $this->method === HTTP_METH_PUT,
-            CURLOPT_POSTFIELDS => $this->payload,
+            CURLOPT_POSTFIELDS => $this->payloadAsString,
         ];
 
         curl_setopt_array($ch, $options);
