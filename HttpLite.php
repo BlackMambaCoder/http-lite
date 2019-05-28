@@ -12,6 +12,8 @@ class HttpLite {
     private $ignoreSSL = false;
     private $url = '';
     private $method = self::GET;
+    private $payload = '';
+    private $payloadArray = [];
     private $response;
 
     public function setHeader($key, $value) {
@@ -31,6 +33,18 @@ class HttpLite {
 
     public function url($url) {
         $this->url = $url;
+        return $this;
+    }
+
+    public function bodyArray ($payloadArray) {
+        $this->payloadArray = $payloadArray;
+        return $this;
+    }
+
+    public function jsonBody() {
+        $this->headers[] = 'Content-Type: application/json';
+        $this->payload = json_encode($this->payloadArray);
+        $this->headers[] = 'Content-Length: ' . strlen($this->payload);
         return $this;
     }
 
@@ -59,6 +73,7 @@ class HttpLite {
             CURLOPT_SSL_VERIFYPEER => !$this->ignoreSSL,
             CURLOPT_POST => $this->method === HTTP_METH_POST,
             CURLOPT_PUT => $this->method === HTTP_METH_PUT,
+            CURLOPT_POSTFIELDS => $this->payload,
         ];
 
         curl_setopt_array($ch, $options);
