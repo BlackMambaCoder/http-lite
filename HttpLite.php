@@ -94,6 +94,8 @@ class HttpLite {
 
         $this->response = curl_exec($ch) ?? null;
 
+        curl_close($ch);
+
         return $this;
     }
 
